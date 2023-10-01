@@ -1,0 +1,31 @@
+import json
+
+from asgiref.sync import async_to_sync
+from channels.consumer import AsyncConsumer
+from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.template import Context, Template
+
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+    
+    async def connect(self):
+        await self.accept()
+        await self.channel_layer.group_add('notifications',self.channel_name)
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard('notifications',self.channel_name)
+    
+    async def send_notification(self,event):
+        message = event['message']
+
+        template = Template('<div class="notification"><p>{{message}}</p></div>')
+        context = Context({'message':message})
+        rendered = template.render(context)
+
+        await self.send(
+            text_data=json.dumps({
+                'type': "notifications",
+                'message': rendered
+            }) 
+        )
