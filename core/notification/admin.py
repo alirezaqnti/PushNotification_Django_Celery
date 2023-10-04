@@ -2,10 +2,8 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django import forms
 from django.contrib import admin
-from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponseRedirect
 from django.urls import path
-from django.urls.resolvers import URLPattern
 
 from .models import Notification
 
@@ -16,7 +14,6 @@ class SendNotification(forms.Form):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('message',)
     add_form_template='admin/add_form.html'
     
     def add_view(self, request, form_url= '', extra_context=None ):
@@ -42,6 +39,6 @@ class NotificationAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_url = [
-            path('send-notification/',self.admin_site.admin_view(self.add_view),name='send-notification')
+            path("send-notification/", self.admin_site.admin_view(self.add_view), name="send-notification"),
         ]
         return custom_url + urls
